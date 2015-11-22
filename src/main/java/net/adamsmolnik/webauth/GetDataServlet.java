@@ -34,7 +34,7 @@ public class GetDataServlet extends HttpServlet {
 		ItemCollection<QueryOutcome> ic = db.getTable("auth-test").query("user-email", user.getEmail());
 		String keyNames = StreamSupport.stream(ic.spliterator(), false).map(o -> o.getString("key-name")).collect(Collectors.joining(" "));
 		resp.setContentType("text/plain");
-		resp.getWriter().println(user.getName() + "' (" + user.getEmail() + ") key names : " + keyNames);
+		resp.getWriter().println(user.getName() + "' (" + user.getEmail() + ") key names: " + keyNames);
 	}
 
 }

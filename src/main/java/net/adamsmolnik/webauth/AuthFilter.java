@@ -37,7 +37,7 @@ public class AuthFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		String idTokenString = request.getParameter("token");
-		if (idTokenString == null) {
+		if (idTokenString == null || "".equals(idTokenString.trim())) {
 			sendUnauthorized(response);
 			return;
 		}
@@ -45,10 +45,6 @@ public class AuthFilter implements Filter {
 		final GoogleIdToken idToken;
 		try {
 			idToken = verifier.verify(idTokenString);
-			if (idToken == null) {
-				sendUnauthorized(response);
-			}
-
 		} catch (GeneralSecurityException e) {
 			sendUnauthorized(response);
 			return;

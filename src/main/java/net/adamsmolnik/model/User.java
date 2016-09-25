@@ -6,21 +6,16 @@ package net.adamsmolnik.model;
  */
 public class User {
 
-	private final String name;
+	public final String name;
 
-	private final String email;
+	public final String email;
 
-	public User(String name, String email) {
+	public final String token;
+
+	public User(String name, String email, String token) {
 		this.name = name;
 		this.email = email;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getEmail() {
-		return email;
+		this.token = token;
 	}
 
 }

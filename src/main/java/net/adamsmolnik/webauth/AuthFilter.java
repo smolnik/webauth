@@ -11,7 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -28,6 +30,8 @@ import net.adamsmolnik.model.User;
 @WebFilter("/secure/*")
 public class AuthFilter implements Filter {
 
+	private final static String ATTR_USER_NAME = User.class.getName();
+
 	private final NetHttpTransport transport = new NetHttpTransport();
 
 	private final GsonFactory jsonFactory = new GsonFactory();
@@ -35,10 +39,17 @@ public class AuthFilter implements Filter {
 	private final GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
 			.setAudience(Arrays.asList("xyzToComplete.apps.googleusercontent.com")).build();
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		String idTokenString = request.getParameter("token");
+	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+		HttpSession session = ((HttpServletRequest) req).getSession();
+		User user = (User) session.getAttribute(ATTR_USER_NAME);
+		if (user != null) {
+			chain.doFilter(req, resp);
+			return;
+		}
+
+		String idTokenString = req.getParameter("token");
 		if (idTokenString == null || "".equals(idTokenString.trim())) {
-			sendUnauthorized(response);
+			sendUnauthorized(resp);
 			return;
 		}
 
@@ -46,13 +57,12 @@ public class AuthFilter implements Filter {
 		try {
 			idToken = verifier.verify(idTokenString);
 		} catch (GeneralSecurityException e) {
-			sendUnauthorized(response);
+			sendUnauthorized(resp);
 			return;
 		}
 		Payload payload = idToken.getPayload();
-		User user = new User((String) payload.get("name"), payload.getEmail());
-		request.setAttribute(User.class.getName(), user);
-		chain.doFilter(request, response);
+		user = new User((String) payload.get("name"), payload.getEmail(), idTokenString);
+		session.setAttribute(ATTR_USER_NAME, user);
 	}
 
 	private void sendUnauthorized(ServletResponse response) throws IOException {

@@ -46,11 +46,14 @@ public class GetDataServlet extends HttpServlet {
 	}
 
 	private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		if (req.getParameter("clear") != null){
+			accessKeyHistoryMap.clear();
+		}
+		
 		User user = (User) req.getSession().getAttribute(User.class.getName());
 		String userName = user.name;
-		System.out.println(user.token);
 		WebIdentityFederationSessionCredentialsProvider webProvider = new WebIdentityFederationSessionCredentialsProvider(user.token, null,
-				"arn:aws:iam::123456789:role/auth-test-db").withSessionDuration(900);
+				"arn:aws:iam::12345678:role/auth-test-db").withSessionDuration(900);
 		AWSSessionCredentials cr = webProvider.getCredentials();
 		accessKeyHistoryMap.putIfAbsent(userName, new HashSet<>());
 		accessKeyHistoryMap.get(userName).add(cr.getAWSAccessKeyId());

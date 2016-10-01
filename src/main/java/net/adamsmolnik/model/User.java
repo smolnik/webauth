@@ -6,16 +6,18 @@ package net.adamsmolnik.model;
  */
 public class User {
 
-	public final String name;
+	public final String name, email, token, subject;
 
-	public final String email;
-
-	public final String token;
-
-	public User(String name, String email, String token) {
+	public User(String name, String email, String token, String subject) {
 		this.name = name;
 		this.email = email;
 		this.token = token;
+		this.subject = subject;
+	}
+
+	@Override
+	public String toString() {
+		return "User [name=" + name + ", email=" + email + ", token=" + token + ", subject=" + subject + "]";
 	}
 
 }

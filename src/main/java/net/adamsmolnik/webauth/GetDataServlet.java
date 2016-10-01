@@ -46,10 +46,10 @@ public class GetDataServlet extends HttpServlet {
 	}
 
 	private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		if (req.getParameter("clear") != null){
+		if (req.getParameter("clear") != null) {
 			accessKeyHistoryMap.clear();
 		}
-		
+
 		User user = (User) req.getSession().getAttribute(User.class.getName());
 		String userName = user.name;
 		WebIdentityFederationSessionCredentialsProvider webProvider = new WebIdentityFederationSessionCredentialsProvider(user.token, null,
@@ -58,7 +58,7 @@ public class GetDataServlet extends HttpServlet {
 		accessKeyHistoryMap.putIfAbsent(userName, new HashSet<>());
 		accessKeyHistoryMap.get(userName).add(cr.getAWSAccessKeyId());
 		DynamoDB db = new DynamoDB(new AmazonDynamoDBClient(cr));
-		ItemCollection<QueryOutcome> ic = db.getTable("auth-test").query("user-email", user.email);
+		ItemCollection<QueryOutcome> ic = db.getTable("web-auth-test").query("userId", user.subject);
 		String keyNames = StreamSupport.stream(ic.spliterator(), false).map(o -> o.getString("key-name")).collect(Collectors.joining(" "));
 		resp.setContentType("text/plain");
 		resp.getWriter().println("key names of " + userName + ": " + keyNames);

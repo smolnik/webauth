@@ -37,7 +37,7 @@ public class AuthFilter implements Filter {
 	private final GsonFactory jsonFactory = new GsonFactory();
 
 	private final GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-			.setAudience(Arrays.asList("xyzToComplete.apps.googleusercontent.com")).build();
+			.setAudience(Arrays.asList("xyz.apps.googleusercontent.com")).build();
 
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 		HttpSession session = ((HttpServletRequest) req).getSession();
@@ -61,7 +61,8 @@ public class AuthFilter implements Filter {
 			return;
 		}
 		Payload payload = idToken.getPayload();
-		user = new User((String) payload.get("name"), payload.getEmail(), idTokenString);
+		user = new User((String) payload.get("name"), payload.getEmail(), idTokenString, payload.getSubject());
+		System.out.println(user);
 		session.setAttribute(ATTR_USER_NAME, user);
 	}
 
